@@ -7,10 +7,12 @@ Homebrew formulas for ChristianMoesl's tools.
 [Radar](https://github.com/ChristianMoesl/radar) is a terminal dashboard for tasks
 and development workspaces.
 
-**Status: awaiting the first Homebrew-compatible Radar release.** The tap
-repository is public, but `Formula/radar.rb` has not been published yet. The
-current `v0.2.1` release predates the setup and manual-page support required by
-the prepared formula.
+**Status: awaiting the notifier-registration fix in a new Radar release.**
+The `v0.3.0` candidate was authenticated, but current Homebrew blocks app
+registration from formula install hooks. The fix moves registration into
+Radar's interactive notification setup. No failing formula is published on
+`main`; the install command below will become available after the fixed release
+passes native Apple Silicon and Intel checks.
 
 Once the formula is published, installation will be:
 
@@ -32,8 +34,9 @@ The formula template and generator are maintained in the Radar repository under
    its matching npm package.
 2. Run Radar's **Homebrew formula** workflow for that release. It authenticates
    the release metadata, verifies both macOS archives and matching public npm
-   package, and tests the candidate on a macOS runner.
-3. Review the generated `Formula/radar.rb` and publish it here.
+   package, and tests the candidate with current Homebrew on Apple Silicon and Intel.
+3. Review the generated `Formula/radar.rb`, validate it, and commit it directly
+   to `main`. Pull requests are used only when explicitly requested.
 
 Updates use `brew upgrade radar`. Pi core and profile-managed Pi extensions have
 separate update ownership. Existing configuration, notes and workspaces are not
