@@ -13,4 +13,4 @@
 
 - Generate Radar's formula from its source repository; keep this tap aligned with that template.
 - Publish only against an existing, authenticated Radar release and its matching public npm package. Do not replace immutable release artifacts or publish around failed installation tests.
-- Test with current Homebrew on native Apple Silicon and Intel. Never disable Homebrew sandboxing or suppress registration failures to make checks pass.
+- Test with current Homebrew on native Apple Silicon. Never disable Homebrew sandboxing or suppress registration failures to make checks pass.

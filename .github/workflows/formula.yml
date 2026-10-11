@@ -1,0 +1,33 @@
+name: Formula
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  radar:
+    name: Radar (Apple Silicon)
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update Homebrew
+        run: brew update
+      - name: Prepare local candidate tap
+        run: |
+          brew tap-new --no-git ChristianMoesl/tap
+          cp Formula/radar.rb "$(brew --repository ChristianMoesl/tap)/Formula/radar.rb"
+          brew trust --formula ChristianMoesl/tap/radar
+      - name: Check formula style
+        run: brew style ChristianMoesl/tap/radar
+      - name: Install release and dependencies
+        run: brew install --formula ChristianMoesl/tap/radar
+      - name: Test installed CLI, manuals and notifier
+        run: brew test ChristianMoesl/tap/radar
+      - name: Uninstall
+        run: brew uninstall ChristianMoesl/tap/radar
