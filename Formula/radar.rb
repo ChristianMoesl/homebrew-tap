@@ -2,34 +2,57 @@
 class Radar < Formula
   desc "Terminal dashboard for tasks and development workspaces"
   homepage "https://github.com/ChristianMoesl/radar"
-  version "0.3.1"
+  version "0.5.0"
   license "MIT"
 
-  depends_on arch: :arm64
   depends_on "fd"
   depends_on "gh"
-  depends_on macos: :ventura
   depends_on "tmux"
 
   on_macos do
+    depends_on arch: :arm64
+    depends_on macos: :ventura
+
     on_arm do
-      url "https://github.com/ChristianMoesl/radar/releases/download/v0.3.1/radar_v0.3.1_darwin_arm64.tar.gz"
-      sha256 "04a44cdf357b6c218034db9ddac6981180bb737c16ef945ed98f64315e3f0381"
+      url "https://github.com/ChristianMoesl/radar/releases/download/v0.5.0/radar_v0.5.0_darwin_arm64.tar.gz"
+      sha256 "6df033e14684ac32084af04b4018a773eac112702396522ce138d54a437525e3"
+    end
+  end
+
+  on_linux do
+    on_intel do
+      url "https://github.com/ChristianMoesl/radar/releases/download/v0.5.0/radar_v0.5.0_linux_amd64.tar.gz"
+      sha256 "2aecba634e5e515d5a608ee5a0a51c8a0b930bb95aa03d7e55d1008a658831ce"
+    end
+    on_arm do
+      url "https://github.com/ChristianMoesl/radar/releases/download/v0.5.0/radar_v0.5.0_linux_arm64.tar.gz"
+      sha256 "072e083f8cc7de750ec344ab1a3da2df707b53d9db8374373c3c55c28ef257ac"
     end
   end
 
   def install
     odie "tmux >= 3.2 is required" if Formula["tmux"].version < Version.new("3.2")
 
-    system "/usr/bin/codesign", "--verify", "--strict", "libexec/radar/RadarNotifier.app"
+    system "/usr/bin/codesign", "--verify", "--strict", "libexec/radar/RadarNotifier.app" if OS.mac?
     bin.install "bin/radar"
     man1.install "share/man/man1/radar.1"
     man5.install "share/man/man5/radar-config.5"
-    (libexec/"radar").install "libexec/radar/RadarNotifier.app"
+    (libexec/"radar").install "libexec/radar/RadarNotifier.app" if OS.mac?
     pkgshare.install "share/radar/AGENTS.md", "LICENSE"
   end
 
   def caveats
+    notification_caveat = if OS.mac?
+      <<~EOS
+        To register the notification companion and request macOS launch approval
+        and notification permission, run outside Homebrew:
+          radar setup notifications
+        Never disable Gatekeeper or remove quarantine to bypass approval.
+      EOS
+    else
+      "Linux does not include the macOS notification companion. URL actions require xdg-open on PATH.\n"
+    end
+
     <<~EOS
       Git must be available on PATH. Install Pi >= 0.85.1 yourself with
       Node.js >= 24 and npm (https://pi.dev). This formula does not
@@ -44,11 +67,7 @@ class Radar < Formula
       if the daemon is running. Update your host pi-radar package separately;
       active Pi sessions need /reload or restart.
 
-      To register the notification companion and request macOS launch approval
-      and notification permission, run outside Homebrew:
-        radar setup notifications
-      Never disable Gatekeeper or remove quarantine to bypass approval.
-
+      #{notification_caveat}
       If you previously installed Radar into ~/.local/bin, check `which -a radar`
       and resolve PATH precedence before setup. No existing install is removed.
     EOS
@@ -57,17 +76,22 @@ class Radar < Formula
   test do
     assert_match "v#{version}", shell_output("#{bin}/radar version")
     assert_match "radar/config.yaml", shell_output("#{bin}/radar config-path")
-    # Deferring only prints guidance; it never opens Settings or requests permission.
-    # Launch through a symlink to exercise Homebrew's Cellar-relative asset lookup.
-    (testpath/"radar-link").make_symlink bin/"radar"
-    output = pipe_output("#{testpath}/radar-link setup notifications", "d\n")
-    assert_match "#{libexec}/radar/RadarNotifier.app/Contents/MacOS/radar-notifier", output
+    if OS.mac?
+      # Help shows the companion path; Skip never opens Settings or requests permission.
+      # Launch through a symlink to exercise Homebrew's Cellar-relative asset lookup.
+      (testpath/"radar-link").make_symlink bin/"radar"
+      output = pipe_output("#{testpath}/radar-link setup notifications", "h\ns\n")
+      assert_match "#{libexec}/radar/RadarNotifier.app/Contents/MacOS/radar-notifier", output
+      assert_predicate libexec/"radar/RadarNotifier.app/Contents/MacOS/radar-notifier", :executable?
+      system "/usr/bin/codesign", "--verify", "--strict", libexec/"radar/RadarNotifier.app"
+    else
+      refute_path_exists libexec/"radar/RadarNotifier.app"
+      assert_match "brew upgrade radar", shell_output("#{bin}/radar update 2>&1", 1)
+    end
     assert_path_exists pkgshare/"AGENTS.md"
     assert_path_exists pkgshare/"LICENSE"
     assert_path_exists man1/"radar.1"
     assert_path_exists man5/"radar-config.5"
-    assert_predicate libexec/"radar/RadarNotifier.app/Contents/MacOS/radar-notifier", :executable?
-    system "/usr/bin/codesign", "--verify", "--strict", libexec/"radar/RadarNotifier.app"
     refute_path_exists testpath/".config/radar/config.yaml"
   end
 end
