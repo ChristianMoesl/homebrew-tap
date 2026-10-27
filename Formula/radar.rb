@@ -2,7 +2,7 @@
 class Radar < Formula
   desc "Terminal dashboard for tasks and development workspaces"
   homepage "https://github.com/ChristianMoesl/radar"
-  version "0.6.0"
+  version "0.7.0"
   license "MIT"
 
   depends_on "fd"
@@ -14,19 +14,19 @@ class Radar < Formula
     depends_on macos: :ventura
 
     on_arm do
-      url "https://github.com/ChristianMoesl/radar/releases/download/v0.6.0/radar_v0.6.0_darwin_arm64.tar.gz"
-      sha256 "a8f05f71edb18574963f62603fda8ef405cab4eee9dc53b02ff487a04f681bae"
+      url "https://github.com/ChristianMoesl/radar/releases/download/v0.7.0/radar_v0.7.0_darwin_arm64.tar.gz"
+      sha256 "6c090cf81c0b554ac272089360a29c4f785924f85fdd3defed47526c232c4eec"
     end
   end
 
   on_linux do
     on_intel do
-      url "https://github.com/ChristianMoesl/radar/releases/download/v0.6.0/radar_v0.6.0_linux_amd64.tar.gz"
-      sha256 "25bde151ab4499e725ee7ed50b1f279e8dc14b029f2e58f0c6898c52efca259e"
+      url "https://github.com/ChristianMoesl/radar/releases/download/v0.7.0/radar_v0.7.0_linux_amd64.tar.gz"
+      sha256 "32e872901c46443d2b8093866647fee238f3654811ed34fe3e4a4adb1c1ba236"
     end
     on_arm do
-      url "https://github.com/ChristianMoesl/radar/releases/download/v0.6.0/radar_v0.6.0_linux_arm64.tar.gz"
-      sha256 "31da6e828566fb7a1c2ba847201809c1e15e3051a613798e596207f143053c87"
+      url "https://github.com/ChristianMoesl/radar/releases/download/v0.7.0/radar_v0.7.0_linux_arm64.tar.gz"
+      sha256 "cd5cc19d8b7f708fd10cecf2c2bd314c759868acc96ec1b5b7916cb1c269d474"
     end
   end
 
